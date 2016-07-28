@@ -7,6 +7,7 @@ local settings = {
   pushToTalk = true
 }
 
+local modifierKeys = {}
 local inputVolumes = {}
 local menubarIcon = nil
 local icons = {
@@ -77,7 +78,14 @@ local modifiersChangedTap = hs.eventtap.new(
         local modifiers = event:getFlags()
         local stateChanged = false
 
-        if modifiers["fn"] then
+        local modifiersMatch = true
+        for index, key in ipairs(modifierKeys) do
+          if modifiers[key] ~= true then
+            modifiersMatch = false
+          end
+        end
+
+        if modifiersMatch then
           if keyPressed ~= true then
             stateChanged = true
           end
@@ -116,6 +124,8 @@ function initMenubarIcon()
           settings.pushToTalk = false
         end
       end},
+      {title = "-"},
+      {title = "Hotkey: " .. table.concat(modifierKeys, " + ")}
     }
   end)
 end
@@ -139,7 +149,9 @@ end
 
 -- Public interface
 local pushToTalk = {}
-pushToTalk.init = function()
+pushToTalk.init = function(modifiers)
+  modifierKeys = modifiers or {"fn"}
+
   loadSettings()
   loadIcons()
 

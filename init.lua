@@ -1,2 +1,2 @@
 local pushToTalk = require("pushToTalk")
-pushToTalk.init()
+pushToTalk.init{"fn"}
