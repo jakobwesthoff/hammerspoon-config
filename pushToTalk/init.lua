@@ -3,6 +3,10 @@
 -- Press and hold fn key to talk
 --
 local log = hs.logger.new('PushToTalk','debug')
+local settings = {
+  pushToTalk = true
+}
+
 local inputVolumes = {}
 local menubarIcon = nil
 local icons = {
@@ -45,25 +49,25 @@ function installInputDeviceWatchers()
   end
 end
 
-function muteMicrophone()
-  log.i('Muting audio')
-  for index, device in ipairs(hs.audiodevice.allInputDevices()) do
-    device:setInputVolume(0)
-  end
-  menubarIcon:setIcon(icons.mutedMicrophone)
-end
-
-function unmuteMicrophone()
-  for index, device in ipairs(hs.audiodevice.allInputDevices()) do
-    log.i('Unmuting audio: ' .. inputVolumes[device:uid()])
-    if inputVolumes[device:uid()] == nil then
-      log.i("Device with unknown inputVolume")
-      device:setInputVolume(100)
-    else
-      device:setInputVolume(inputVolumes[device:uid()])
+function changeMicrophoneState(mute)
+  if mute then
+    log.i('Muting audio')
+    for index, device in ipairs(hs.audiodevice.allInputDevices()) do
+      device:setInputVolume(0)
     end
+    menubarIcon:setIcon(icons.mutedMicrophone)
+  else
+    for index, device in ipairs(hs.audiodevice.allInputDevices()) do
+      log.i('Unmuting audio: ' .. inputVolumes[device:uid()])
+      if inputVolumes[device:uid()] == nil then
+        log.i("Device with unknown inputVolume")
+        device:setInputVolume(100)
+      else
+        device:setInputVolume(inputVolumes[device:uid()])
+      end
+    end
+    menubarIcon:setIcon(icons.microphone)
   end
-  menubarIcon:setIcon(icons.microphone)
 end
 
 local keyPressed = false
@@ -87,9 +91,9 @@ local modifiersChangedTap = hs.eventtap.new(
 
         if stateChanged then
           if keyPressed then
-            unmuteMicrophone()
+            changeMicrophoneState(not settings.pushToTalk)
           else
-            muteMicrophone()
+            changeMicrophoneState(settings.pushToTalk)
           end
         end
     end
@@ -98,6 +102,22 @@ local modifiersChangedTap = hs.eventtap.new(
 function initMenubarIcon()
   menubarIcon = hs.menubar.new()
   menubarIcon:setIcon(icons.microphone)
+  menubarIcon:setMenu(function()
+    return {
+      {title = "Push to talk", checked = settings.pushToTalk, fn = function()
+        if settings.pushToTalk == false then
+          changeMicrophoneState(true)
+          settings.pushToTalk = true
+        end
+      end},
+      {title = "Push to mute", checked = not settings.pushToTalk, fn = function()
+        if settings.pushToTalk == true then
+          changeMicrophoneState(false)
+          settings.pushToTalk = false
+        end
+      end},
+    }
+  end)
 end
 
 function loadIcons()
@@ -106,15 +126,28 @@ function loadIcons()
   icons.mutedMicrophone = hs.image.imageFromPath(iconPath .."/microphone-slash.pdf"):setSize({w = 16, h = 16})
 end
 
+function loadSettings()
+  local loadedSettings = hs.settings.get('pushToTalk.settings')
+  if loadedSettings ~= nil then
+    settings = loadedSettings
+  end
+end
+
+function saveSettings()
+  hs.settings.set('pushToTalk.settings', settings)
+end
+
 -- Public interface
 local pushToTalk = {}
 pushToTalk.init = function()
+  loadSettings()
   loadIcons()
+
   initMenubarIcon()
 
   initInputVolumes()
   installInputDeviceWatchers()
-  muteMicrophone()
+  changeMicrophoneState(settings.pushToTalk)
 
   modifiersChangedTap:start()
 
@@ -123,6 +156,8 @@ pushToTalk.init = function()
     if oldShutdownCallback ~= nil then
       oldShutdownCallback()
     end
+
+    saveSettings()
 
     for index, device in ipairs(hs.audiodevice.allInputDevices()) do
       if inputVolumes[device:uid()] == nil then
