@@ -3,7 +3,7 @@
 -- Press and hold fn key to talk
 --
 
-local log = hs.logger.new('hammerShush','debug')
+local log = hs.logger.new('PushToTalk','debug')
 local inputVolumes = {}
 local menubarIcon = nil
 local icons = {
@@ -102,7 +102,7 @@ function initMenubarIcon()
 end
 
 function loadIcons()
-  local iconPath = hs.configdir .. "/hammerShush/icons"
+  local iconPath = hs.configdir .. "/pushToTalk/icons"
   icons.microphone = hs.image.imageFromPath(iconPath .. "/microphone.pdf"):setSize({w = 16, h = 16})
   icons.mutedMicrophone = hs.image.imageFromPath(iconPath .."/microphone-slash.pdf"):setSize({w = 16, h = 16})
 end

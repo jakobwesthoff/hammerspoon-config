@@ -8,4 +8,4 @@ This repository contains my personal [hammerspoon](http://hammerspoon.org) confi
 
 Currently the following of my modules are port of the repository:
 
-- **HammerShush**: A simple push-to-talk interface.
+- **PushToTalk**: A simple push-to-talk interface.
