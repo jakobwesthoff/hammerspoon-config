@@ -116,3 +116,13 @@ installInputDeviceWatchers()
 muteMicrophone()
 
 modifiersChangedTap:start()
+
+hs.shutdownCallback = function()
+  for index, device in ipairs(hs.audiodevice.allInputDevices()) do
+    if inputVolumes[device:uid()] == nil then
+      device:setInputVolume(100)
+    else
+      device:setInputVolume(inputVolumes[device:uid()])
+    end
+  end
+end
