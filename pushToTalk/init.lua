@@ -9,16 +9,35 @@ local settings = {
 
 local modifierKeys = {}
 local inputVolumes = {}
+local muted = false
 local menubarIcon = nil
 local icons = {
   microphone = nil,
   mutedMicrophone = nil
 }
 
-function initInputVolumes()
+function updateInputVolumes()
+  local activeUids = {}
   for index, device in ipairs(hs.audiodevice.allInputDevices()) do
-    inputVolumes[device:uid()] = device:inputVolume()
-    log.i("Initializing unmuted volume for " .. device:uid() .. ": " .. inputVolumes[device:uid()])
+    activeUids[device:uid()] = true
+    if inputVolumes[device:uid()] == nil then
+      local inputVolume = device:inputVolume()
+      if inputVolume == 0 then
+        inputVolume = 100
+      end
+      inputVolumes[device:uid()] = inputVolume
+      log.i("Setting unmuted volume for " .. device:uid() .. ": " .. inputVolumes[device:uid()])
+    end
+    if not device:watcherIsRunning() then
+      device:watcherCallback(onInputDeviceChanged)
+      device:watcherStart()
+    end
+  end
+  for uid, volume in pairs(inputVolumes) do
+    if activeUids[uid] == nil then
+      inputVolumes[uid] = nil
+      log.i("Removed unmuted volume for no longer active device " .. uid)
+    end
   end
 end
 
@@ -39,15 +58,21 @@ function onInputDeviceChanged(uid, name, scope, element)
   end
 
   inputVolumes[uid] = newVolume
-
-  log.i("Updating unmuted volume for " .. uid .. ": " .. newVolume)
+  log.i("User changed unmuted volume for " .. uid .. ": " .. newVolume)
 end
 
-function installInputDeviceWatchers()
-  for index, device in ipairs(hs.audiodevice.allInputDevices()) do
-    device:watcherCallback(onInputDeviceChanged)
-    device:watcherStart()
+function onSystemAudioDeviceChanged(name)
+  if name ~= "dev#" then
+    return
   end
+
+  updateInputVolumes()
+  changeMicrophoneState(muted)
+end
+
+function installSystemAudioWatcher()
+  hs.audiodevice.watcher.setCallback(onSystemAudioDeviceChanged)
+  hs.audiodevice.watcher.start()
 end
 
 function changeMicrophoneState(mute)
@@ -56,17 +81,22 @@ function changeMicrophoneState(mute)
     for index, device in ipairs(hs.audiodevice.allInputDevices()) do
       device:setInputVolume(0)
     end
+    -- Hack to really mute the microphone
+    hs.applescript('set volume input volume 0')
     menubarIcon:setIcon(icons.mutedMicrophone)
   else
     for index, device in ipairs(hs.audiodevice.allInputDevices()) do
-      log.i('Unmuting audio: ' .. inputVolumes[device:uid()])
       if inputVolumes[device:uid()] == nil then
         log.i("Device with unknown inputVolume")
-        device:setInputVolume(100)
       else
+        log.i('Unmuting audio: ' .. inputVolumes[device:uid()])
         device:setInputVolume(inputVolumes[device:uid()])
       end
     end
+    -- Hack to really unmute the microphone
+    local defaultInputDevice = hs.audiodevice.defaultInputDevice()
+    local defaultVolumne = inputVolumes[defaultInputDevice:uid()]
+    hs.applescript('set volume input volume ' .. defaultVolumne)
     menubarIcon:setIcon(icons.microphone)
   end
 end
@@ -99,9 +129,11 @@ local modifiersChangedTap = hs.eventtap.new(
 
         if stateChanged then
           if keyPressed then
-            changeMicrophoneState(not settings.pushToTalk)
+            muted = not settings.pushToTalk
+            changeMicrophoneState(muted)
           else
-            changeMicrophoneState(settings.pushToTalk)
+            muted = settings.pushToTalk
+            changeMicrophoneState(muted)
           end
         end
     end
@@ -114,12 +146,14 @@ function initMenubarIcon()
     return {
       {title = "Push to talk", checked = settings.pushToTalk, fn = function()
         if settings.pushToTalk == false then
+          muted = true
           changeMicrophoneState(true)
           settings.pushToTalk = true
         end
       end},
       {title = "Push to mute", checked = not settings.pushToTalk, fn = function()
         if settings.pushToTalk == true then
+          muted = false
           changeMicrophoneState(false)
           settings.pushToTalk = false
         end
@@ -157,8 +191,8 @@ pushToTalk.init = function(modifiers)
 
   initMenubarIcon()
 
-  initInputVolumes()
-  installInputDeviceWatchers()
+  updateInputVolumes()
+  installSystemAudioWatcher()
   changeMicrophoneState(settings.pushToTalk)
 
   modifiersChangedTap:start()
@@ -170,14 +204,7 @@ pushToTalk.init = function(modifiers)
     end
 
     saveSettings()
-
-    for index, device in ipairs(hs.audiodevice.allInputDevices()) do
-      if inputVolumes[device:uid()] == nil then
-        device:setInputVolume(100)
-      else
-        device:setInputVolume(inputVolumes[device:uid()])
-      end
-    end
+    changeMicrophoneState(false)
   end
 end
 
