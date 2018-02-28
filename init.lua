@@ -39,3 +39,17 @@ windowLayouts.registerLayout("Zoom on Internal", {
   {app="iTerm2", grid=hs.geometry.new(0,0,3,6), screen=screens.external},
   {app="Slack", grid=hs.geometry.new(3,0,6,6), screen=screens.external},
 })
+
+windowLayouts.registerLayout("Share Screen Internal", {
+  {app="zoom.us", grid=hs.geometry.new(0,0,3,3), screen=screens.external},
+  {app="Google Chrome", grid=hs.geometry.new(0,0,6,6), screen=screens.external},
+  {app="PhpStorm", grid=hs.geometry.new(0,0,6,6), screen=screens.internal},
+  {app="Messages", grid=hs.geometry.new(0,0,3,6), screen=screens.external},
+  {app="Atom", grid=hs.geometry.new(0,0,6,6), screen=screens.external},
+  {app="Sequel Pro", grid=hs.geometry.new(0,0,6,6), screen=screens.internal},
+  {app="Tyme 2", grid=hs.geometry.new(3,3,6,6), screen=screens.external},
+  {app="Fantastical", grid=hs.geometry.new(0,0,6,6), screen=screens.external},
+  {app="Airmail", grid=hs.geometry.new(0,0,6,6), screen=screens.external},
+  {app="iTerm2", grid=hs.geometry.new(0,0,6,6), screen=screens.internal},
+  {app="Slack", grid=hs.geometry.new(3,0,6,6), screen=screens.external},
+})
