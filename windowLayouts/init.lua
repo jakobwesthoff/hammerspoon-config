@@ -3,15 +3,23 @@ local gridStack = {}
 local registeredLayouts = {}
 local menubarIcon
 
-function saveGridConfig(newGridConfig)
+--- Save a specific grid configuration for later use
+-- @param string newGridConfig
+--
+local function saveGridConfig(newGridConfig)
     gridConfig = newGridConfig
 end
 
-function getGridConfig()
+--- Return the currently save grid config
+-- @return string
+--
+local function getGridConfig()
     return gridConfig
 end
 
-function popGrid()
+--- Restore the latest grid configuration active before the last `pushGrid`
+--
+local function popGrid()
     local poppedElement = table.remove(gridStack)
     if poppedElement == nil then
         return
@@ -19,13 +27,21 @@ function popGrid()
     hs.grid.setGrid(poppedElement, nil, nil)
 end
 
-function pushGrid(gridGeometry)
+--- Push the given grid onto the stack and activate it
+-- @param gridGeometry
+--
+local function pushGrid(gridGeometry)
     local currentGrid = hs.grid.getGrid()
     table.insert(gridStack, currentGrid)
     hs.grid.setGrid(gridGeometry, nil, nil)
 end
 
-function moveWindowsByApplication(appName, gridGeometry, screen)
+--- Move all windows of a specific application to the given grid position on the given screen
+-- @param string appName
+-- @param hs.geometry gridGeometry
+-- @param hs.screen screen
+--
+local function moveWindowsByApplication(appName, gridGeometry, screen)
     local app = hs.appfinder.appFromName(appName)
     if app == nil then
         return
@@ -44,11 +60,18 @@ function moveWindowsByApplication(appName, gridGeometry, screen)
     popGrid()
 end
 
-function addLayout(name, layout)
+--- Add a specific layout with a given name to the system
+-- @param string name
+-- @param layout
+--
+local function addLayout(name, layout)
     registeredLayouts[name] = layout
 end
 
-function activateLayout(name)
+--- Activate a registered layout by its name
+-- @param string name
+--
+local function activateLayout(name)
     if registeredLayouts[name] == nil then
         return
     end
@@ -59,12 +82,17 @@ function activateLayout(name)
     end
 end
 
-function loadMenubarIcon()
+--- Initialize and load the Menubar Icon to be used
+-- @return hs.image
+--
+local function loadMenubarIcon()
     local iconPath = hs.configdir .. "/windowLayouts/icons"
     return hs.image.imageFromPath(iconPath .. "/window-restore.pdf"):setSize({ w = 16, h = 16 })
 end
 
-function initMenubarIcon()
+--- Initialize and show the menubar icon for switching between layouts
+--
+local function initMenubarIcon()
     menubarIcon = hs.menubar.new()
     menubarIcon:setIcon(loadMenubarIcon())
     menubarIcon:setMenu(function()
@@ -84,11 +112,19 @@ end
 -- Public interface
 local windowLayouts = {}
 
+--- Initialize the module using a specific grid configuration
+-- This function needs to be called before calling anything else related to this module
+-- @param string gridConfig
+--
 windowLayouts.initialize = function(gridConfig)
     saveGridConfig(gridConfig)
     initMenubarIcon()
 end
 
+--- Register a new layout with the system, which is displayed in the corresponding menubar menu
+-- @param string name
+-- @param table layout
+--
 windowLayouts.registerLayout = function(name, layout)
     addLayout(name, layout)
 end
