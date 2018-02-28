@@ -6,10 +6,11 @@ This repository contains my personal [hammerspoon](http://hammerspoon.org) confi
 
 ## Modules
 
-Currently the following of my modules are port of the repository:
+Currently the following of my modules are part of the repository:
 
 - **PushToTalk**: A simple push-to-talk interface.
 - **KeystrokeToApp**: Send specific keystrokes always to a certain app
+- **WindowLayouts**: Define Layouts of windows on different screens, which may be activated by hotkeys or a menubar icon.
 
 ## License
 
