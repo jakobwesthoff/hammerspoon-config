@@ -1,7 +1,9 @@
 local gridConfig = '6x6'
 local gridStack = {}
 local registeredLayouts = {}
+local activeHotkeyBindings = {}
 local menubarIcon
+local menuItems
 
 --- Save a specific grid configuration for later use
 -- @param string newGridConfig
@@ -61,24 +63,55 @@ local function moveWindowsByApplication(appName, gridGeometry, screen)
 end
 
 --- Add a specific layout with a given name to the system
+---
 -- @param string name
--- @param layout
+-- @param table apps
+-- @param string|nil hotkey
+-- @param string|nil icon
 --
-local function addLayout(name, layout)
-    registeredLayouts[name] = layout
+local function addLayout(name, apps, hotkey, icon)
+    table.insert(registeredLayouts, {
+        name = name,
+        apps = apps,
+        hotkey = hotkey,
+        icon = icon,
+    })
+end
+
+--- Check if the layout with the given name is registered
+-- @param string name
+--
+local function isLayoutRegistered(name)
+    for index, layout in ipairs(registeredLayouts) do
+        if layout.name == name then
+            return true
+        end
+    end
+
+    return false
+end
+
+local function getLayoutByName(name)
+    for index, layout in ipairs(registeredLayouts) do
+        if layout.name == name then
+            return layout
+        end
+    end
+
+    return nil
 end
 
 --- Activate a registered layout by its name
 -- @param string name
 --
 local function activateLayout(name)
-    if registeredLayouts[name] == nil then
+    if not isLayoutRegistered(name) then
         return
     end
 
-    local layout = registeredLayouts[name]
-    for index, config in ipairs(layout) do
-        moveWindowsByApplication(config["app"], config["grid"], config["screen"])
+    local layout = getLayoutByName(name)
+    for index, app in ipairs(layout["apps"]) do
+        moveWindowsByApplication(app["name"], app["grid"], app["screen"])
     end
 end
 
@@ -96,17 +129,64 @@ local function initMenubarIcon()
     menubarIcon = hs.menubar.new()
     menubarIcon:setIcon(loadMenubarIcon())
     menubarIcon:setMenu(function()
-        local menubarEntries = {}
-        for name, layout in pairs(registeredLayouts) do
-            table.insert(menubarEntries, {
-                title = name,
-                fn = function()
-                    activateLayout(name)
-                end
-            })
-        end
-        return menubarEntries
+        return menuItems
     end)
+end
+
+--- Update the menuItemsInformation and redraw the menu
+--
+local function updateMenuIcons()
+    local menubarEntries = {}
+    for index, layout in ipairs(registeredLayouts) do
+        local displayString = layout["name"]
+        if layout["hotkey"] ~= nil then
+            displayString = displayString .. " (" .. layout["hotkey"]["mods"] .. layout["hotkey"]["key"] .. ")"
+        end
+
+        table.insert(menubarEntries, {
+            title = displayString,
+            image = layout["icon"],
+            fn = function()
+                activateLayout(layout["name"])
+            end
+        })
+    end
+    menuItems = menubarEntries
+end
+
+local function deregisterAllActiveHotkeys()
+    for index, binding in ipairs(activeHotkeyBindings) do
+        binding:delete();
+    end
+    activeHotkeyBindings = {}
+end
+
+--- Register and activate a specific hotkey
+-- @param hotkey
+-- @param layoutName
+--
+local function activateHotkey(hotkey, layoutName)
+    local binding = hs.hotkey.bind(hotkey["mods"],
+        hotkey["key"],
+        layoutName,
+        nil,
+        function()
+            activateLayout(layoutName)
+        end,
+        nil)
+
+    table.insert(activeHotkeyBindings, binding)
+end
+
+--- Update all the registered hotkeys corresponding to layouts
+--
+local function updateHotkeys()
+    deregisterAllActiveHotkeys()
+    for index, layout in ipairs(registeredLayouts) do
+        if layout["hotkey"] ~= nil then
+            activateHotkey(layout["hotkey"], layout["name"])
+        end
+    end
 end
 
 -- Public interface
@@ -119,14 +199,19 @@ local windowLayouts = {}
 windowLayouts.initialize = function(gridConfig)
     saveGridConfig(gridConfig)
     initMenubarIcon()
+    updateMenuIcons()
+    updateHotkeys()
 end
 
 --- Register a new layout with the system, which is displayed in the corresponding menubar menu
--- @param string name
--- @param table layout
+-- @param table apps
+-- @param string|nil hotkey
+-- @param string|nil icon
 --
-windowLayouts.registerLayout = function(name, layout)
-    addLayout(name, layout)
+windowLayouts.registerLayout = function(name, apps, hotkey, icon)
+    addLayout(name, apps, hotkey, icon)
+    updateMenuIcons()
+    updateHotkeys()
 end
 
 return windowLayouts

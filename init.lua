@@ -13,43 +13,53 @@ local screens = {
 local windowLayouts = require("windowLayouts")
 windowLayouts.initialize("6x6")
 windowLayouts.registerLayout("Zoom on External", {
-    { app = "zoom.us", grid = hs.geometry.new(0, 0, 6, 6), screen = screens.external },
-    { app = "Google Chrome", grid = hs.geometry.new(0, 0, 6, 6), screen = screens.internal },
-    { app = "PhpStorm", grid = hs.geometry.new(0, 0, 6, 6), screen = screens.internal },
-    { app = "Messages", grid = hs.geometry.new(3, 0, 6, 6), screen = screens.internal },
-    { app = "Atom", grid = hs.geometry.new(0, 0, 6, 6), screen = screens.internal },
-    { app = "Sequel Pro", grid = hs.geometry.new(0, 0, 6, 6), screen = screens.internal },
-    { app = "Tyme 2", grid = hs.geometry.new(0, 3, 6, 6), screen = screens.internal },
-    { app = "Fantastical", grid = hs.geometry.new(0, 0, 6, 6), screen = screens.internal },
-    { app = "Airmail", grid = hs.geometry.new(0, 0, 6, 6), screen = screens.internal },
-    { app = "iTerm2", grid = hs.geometry.new(0, 0, 6, 6), screen = screens.internal },
-    { app = "Slack", grid = hs.geometry.new(0, 0, 6, 6), screen = screens.internal },
+    { name = "zoom.us", grid = hs.geometry.new(0, 0, 6, 6), screen = screens.external },
+    { name = "Google Chrome", grid = hs.geometry.new(0, 0, 6, 6), screen = screens.internal },
+    { name = "PhpStorm", grid = hs.geometry.new(0, 0, 6, 6), screen = screens.internal },
+    { name = "Messages", grid = hs.geometry.new(3, 0, 6, 6), screen = screens.internal },
+    { name = "Atom", grid = hs.geometry.new(0, 0, 6, 6), screen = screens.internal },
+    { name = "Sequel Pro", grid = hs.geometry.new(0, 0, 6, 6), screen = screens.internal },
+    { name = "Tyme 2", grid = hs.geometry.new(0, 3, 6, 6), screen = screens.internal },
+    { name = "Fantastical", grid = hs.geometry.new(0, 0, 6, 6), screen = screens.internal },
+    { name = "Airmail", grid = hs.geometry.new(0, 0, 6, 6), screen = screens.internal },
+    { name = "iTerm2", grid = hs.geometry.new(0, 0, 6, 6), screen = screens.internal },
+    { name = "Slack", grid = hs.geometry.new(0, 0, 6, 6), screen = screens.internal },
+}, {
+    mods = "⌥⌘",
+    key = "E"
 })
 
 windowLayouts.registerLayout("Zoom on Internal", {
-    { app = "zoom.us", grid = hs.geometry.new(0, 0, 6, 6), screen = screens.internal },
-    { app = "Google Chrome", grid = hs.geometry.new(0, 0, 6, 6), screen = screens.external },
-    { app = "PhpStorm", grid = hs.geometry.new(0, 0, 6, 6), screen = screens.external },
-    { app = "Messages", grid = hs.geometry.new(0, 0, 3, 6), screen = screens.external },
-    { app = "Atom", grid = hs.geometry.new(0, 0, 6, 6), screen = screens.external },
-    { app = "Sequel Pro", grid = hs.geometry.new(0, 0, 6, 6), screen = screens.external },
-    { app = "Tyme 2", grid = hs.geometry.new(3, 3, 6, 6), screen = screens.external },
-    { app = "Fantastical", grid = hs.geometry.new(0, 0, 6, 6), screen = screens.external },
-    { app = "Airmail", grid = hs.geometry.new(0, 0, 6, 6), screen = screens.external },
-    { app = "iTerm2", grid = hs.geometry.new(0, 0, 3, 6), screen = screens.external },
-    { app = "Slack", grid = hs.geometry.new(3, 0, 6, 6), screen = screens.external },
+    { name = "zoom.us", grid = hs.geometry.new(0, 0, 6, 6), screen = screens.internal },
+    { name = "Google Chrome", grid = hs.geometry.new(0, 0, 6, 6), screen = screens.external },
+    { name = "PhpStorm", grid = hs.geometry.new(0, 0, 6, 6), screen = screens.external },
+    { name = "Messages", grid = hs.geometry.new(0, 0, 3, 6), screen = screens.external },
+    { name = "Atom", grid = hs.geometry.new(0, 0, 6, 6), screen = screens.external },
+    { name = "Sequel Pro", grid = hs.geometry.new(0, 0, 6, 6), screen = screens.external },
+    { name = "Tyme 2", grid = hs.geometry.new(3, 3, 6, 6), screen = screens.external },
+    { name = "Fantastical", grid = hs.geometry.new(0, 0, 6, 6), screen = screens.external },
+    { name = "Airmail", grid = hs.geometry.new(0, 0, 6, 6), screen = screens.external },
+    { name = "iTerm2", grid = hs.geometry.new(0, 0, 3, 6), screen = screens.external },
+    { name = "Slack", grid = hs.geometry.new(3, 0, 6, 6), screen = screens.external },
+}, {
+    mods = "⌥⌘",
+    key = "I"
 })
 
 windowLayouts.registerLayout("Share Screen Internal", {
-    { app = "zoom.us", grid = hs.geometry.new(0, 0, 3, 3), screen = screens.external },
-    { app = "Google Chrome", grid = hs.geometry.new(0, 0, 6, 6), screen = screens.external },
-    { app = "PhpStorm", grid = hs.geometry.new(0, 0, 6, 6), screen = screens.internal },
-    { app = "Messages", grid = hs.geometry.new(0, 0, 3, 6), screen = screens.external },
-    { app = "Atom", grid = hs.geometry.new(0, 0, 6, 6), screen = screens.external },
-    { app = "Sequel Pro", grid = hs.geometry.new(0, 0, 6, 6), screen = screens.internal },
-    { app = "Tyme 2", grid = hs.geometry.new(3, 3, 6, 6), screen = screens.external },
-    { app = "Fantastical", grid = hs.geometry.new(0, 0, 6, 6), screen = screens.external },
-    { app = "Airmail", grid = hs.geometry.new(0, 0, 6, 6), screen = screens.external },
-    { app = "iTerm2", grid = hs.geometry.new(0, 0, 6, 6), screen = screens.internal },
-    { app = "Slack", grid = hs.geometry.new(3, 0, 6, 6), screen = screens.external },
+    { name = "zoom.us", grid = hs.geometry.new(0, 0, 3, 3), screen = screens.external },
+    { name = "Google Chrome", grid = hs.geometry.new(0, 0, 6, 6), screen = screens.external },
+    { name = "PhpStorm", grid = hs.geometry.new(0, 0, 6, 6), screen = screens.internal },
+    { name = "Messages", grid = hs.geometry.new(0, 0, 3, 6), screen = screens.external },
+    { name = "Atom", grid = hs.geometry.new(0, 0, 6, 6), screen = screens.external },
+    { name = "Sequel Pro", grid = hs.geometry.new(0, 0, 6, 6), screen = screens.internal },
+    { name = "Tyme 2", grid = hs.geometry.new(3, 3, 6, 6), screen = screens.external },
+    { name = "Fantastical", grid = hs.geometry.new(0, 0, 6, 6), screen = screens.external },
+    { name = "Airmail", grid = hs.geometry.new(0, 0, 6, 6), screen = screens.external },
+    { name = "iTerm2", grid = hs.geometry.new(0, 0, 6, 6), screen = screens.internal },
+    { name = "Slack", grid = hs.geometry.new(3, 0, 6, 6), screen = screens.external },
+}, {
+    mods = "⌥⌘",
+    key = "S"
 })
+
