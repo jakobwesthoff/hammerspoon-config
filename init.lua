@@ -65,7 +65,7 @@ keystrokeToApp.register("Slack", { "cmd" }, "k", true)
 -- 
 
 local soundboard = require("soundboard")
-soundboard.registerNextBoard({ "cmd", "alt", "ctrl" }, "9")
+soundboard.registerMetaBoardButton({ "cmd", "alt", "ctrl" }, "9")
 soundboard.register("Ive got balls of steel.mp3", { "cmd", "alt", "ctrl" }, "1")
 soundboard.register("Classic Intercom Whistle.mp3", { "cmd", "alt", "ctrl" }, "2")
 soundboard.register("Hail to the king baby.mp3", { "cmd", "alt", "ctrl" }, "3")

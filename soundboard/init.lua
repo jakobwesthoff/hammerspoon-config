@@ -1,6 +1,8 @@
 local activeBoard = nil
 local boards = {}
 local openBoardAlert = nil
+local showBoardTimer = nil
+local inSwitchingZone = false
 
 -- Public interface
 local soundboard = {}
@@ -23,6 +25,8 @@ soundboard.register = function(soundfile, modifiers, character, boardid)
         end
     end)
 
+    newBinding.name = string.gsub(soundfile, "%..*$", "")
+
     if boards[boardid] == nil then
         boards[boardid] = {}
     end
@@ -32,9 +36,13 @@ soundboard.register = function(soundfile, modifiers, character, boardid)
     table.insert(board, newBinding)
 end
 
-soundboard.registerNextBoard = function(modifiers, character)
+soundboard.registerMetaBoardButton = function(modifiers, character)
     local newBinding = hs.hotkey.new(modifiers, character, function()
-        soundboard.nextBoard()
+        if inSwitchingZone == true then
+            soundboard.nextBoard()
+        else
+            soundboard.displayActiveBoard()
+        end
     end)
     newBinding:enable()
 end
@@ -58,10 +66,7 @@ soundboard.switchToBoard = function(boardid)
     end
 
     activeBoard = boardid
-    if openBoardAlert ~= nil then
-        hs.alert.closeSpecific(openBoardAlert, 0)
-    end
-    openBoardAlert = hs.alert.show(string.format(" Soundboard: %s", boardid))
+    soundboard.displayActiveBoard()
 end
 
 soundboard.nextBoard = function()
@@ -71,6 +76,97 @@ soundboard.nextBoard = function()
     end
 
     soundboard.switchToBoard(nextBoardId)
+end
+
+soundboard.displayActiveBoard = function()
+    local template = [[
+    <style type="text/css">
+        * {
+            font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
+        }
+
+        td {
+            font-size: 28px;
+            color: white;
+            text-align: center;
+            vertical-align: center;
+            margin: 16px;
+        }
+
+        h1 {
+            font-size: 30px;
+            font-weight: normal;
+            font-family: -apple-system;
+            color: white;
+            text-align: center;
+        }
+
+        em {
+            color: goldenrod;
+            font-style: normal;
+        }
+
+        table {
+            margin: 0 auto;
+        }
+    </style>
+
+    <h1>Soundboard: <em>{{soundboard}}</em></h1>
+    <table>
+        <tr>
+            <td>{{0}}</td>
+            <td> | </td>
+            <td>{{1}}</td>
+            <td> | </td>
+            <td>{{2}}</td>
+      </tr>
+      <tr>
+          <td>{{3}}</td>
+          <td> | </td>
+          <td>{{4}}</td>
+          <td> | </td>
+          <td>{{5}}</td>
+      </tr>
+      <tr>
+            <td>{{6}}</td>
+            <td> | </td>
+            <td>{{7}}</td>
+            <td> | </td>
+            <td>{{8}}</td>
+      </tr>
+    </table>
+    ]]
+
+    filledTemplate = string.gsub(template, "{{(.-)}}", function(v) 
+        if v == "soundboard" then
+            return activeBoard
+        else
+            local index = tonumber(v) + 1
+            if boards[activeBoard][index] ~= nil then
+                return boards[activeBoard][index].name
+            else
+                return "&nbsp;&nbsp;&nbsp;&nbsp; - &nbsp;&nbsp;&nbsp;&nbsp;"
+            end
+        end
+    end)
+    
+    local formatted = hs.styledtext.getStyledTextFromData(filledTemplate, "html")
+
+    if showBoardTimer ~= nil then
+        showBoardTimer:stop()
+        showBoardTimer = nil
+    end
+
+    showBoardTimer = hs.timer.doAfter(4, function() 
+        inSwitchingZone = false
+        showBoardTimer = nil
+    end)
+    inSwitchingZone = true
+
+    if openBoardAlert ~= nil then
+        hs.alert.closeSpecific(openBoardAlert, 0)
+    end
+    openBoardAlert = hs.alert.show(formatted, 4)
 end
 
 return soundboard
