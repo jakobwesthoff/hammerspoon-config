@@ -90,7 +90,15 @@ soundboard.displayActiveBoard = function()
             color: white;
             text-align: center;
             vertical-align: center;
-            margin: 16px;
+            margin: 12px;
+        }
+
+        td.value {
+            width: 30%;
+        }
+
+        td.spacer {
+            width: 5%;
         }
 
         h1 {
@@ -114,25 +122,25 @@ soundboard.displayActiveBoard = function()
     <h1>Soundboard: <em>{{soundboard}}</em></h1>
     <table>
         <tr>
-            <td>{{0}}</td>
-            <td> | </td>
-            <td>{{1}}</td>
-            <td> | </td>
-            <td>{{2}}</td>
+            <td class="value">{{0}}</td>
+            <td class="spacer"> | </td>
+            <td class="value">{{1}}</td>
+            <td class="spacer"> | </td>
+            <td class="value">{{2}}</td>
       </tr>
       <tr>
-          <td>{{3}}</td>
-          <td> | </td>
-          <td>{{4}}</td>
-          <td> | </td>
-          <td>{{5}}</td>
+          <td class="value">{{3}}</td>
+          <td class="spacer"> | </td>
+          <td class="value">{{4}}</td>
+          <td class="spacer"> | </td>
+          <td class="value">{{5}}</td>
       </tr>
       <tr>
-            <td>{{6}}</td>
-            <td> | </td>
-            <td>{{7}}</td>
-            <td> | </td>
-            <td>{{8}}</td>
+            <td class="value">{{6}}</td>
+            <td class="spacer"> | </td>
+            <td class="value">{{7}}</td>
+            <td class="spacer"> | </td>
+            <td class="value">{{8}}</td>
       </tr>
     </table>
     ]]
