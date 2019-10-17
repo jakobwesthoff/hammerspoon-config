@@ -25,7 +25,7 @@ soundboard.register = function(soundfile, modifiers, character, boardid)
         end
     end)
 
-    newBinding.name = string.gsub(soundfile, "%..*$", "")
+    newBinding.name = string.gsub(soundfile, "^[^/]*/?(.+)%..*$", "%1")
 
     if boards[boardid] == nil then
         boards[boardid] = {}
